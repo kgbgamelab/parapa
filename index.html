@@ -1,60 +1,83 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<meta charset="UTF-8">
 <style>
   :root {
-    --scene-height: 500px;
-    /* Укажи здесь скорость для всей сцены */
-    --base-speed: 20s; 
+    /* Базовая скорость (чем больше число, тем медленнее движение) */
+    --speed-sky: 100s;
+    --speed-city: 30s;
+    --speed-rail: 8s;
   }
 
-  body { margin: 0; background: #050011; }
+  body { 
+    margin: 0; 
+    background: #050011; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
+  /* Контейнер строго 16:9 */
   .viewport {
     position: relative;
     width: 100%;
-    height: var(--scene-height);
+    max-width: 1200px; /* Можно менять под свои нужды */
+    aspect-ratio: 16 / 9; 
     overflow: hidden;
-    border-bottom: 5px solid #ff00cc; /* Неоновая линия дороги */
+    background: #000;
+    box-shadow: 0 0 50px rgba(255, 0, 204, 0.2);
   }
 
+  /* Общий стиль для слоев */
   .layer {
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 100%;
+    height: 100%;
+    /* Делаем слой в 2 раза шире экрана, чтобы внутри было 2 копии картинки */
+    width: 200%; 
     background-repeat: repeat-x;
-    background-size: auto 100%;
-    /* Включаем аппаратное ускорение */
-    transform: translateZ(0);
+    background-size: 50% 100%; 
+    will-change: transform;
+    image-rendering: pixelated; /* Сохраняет четкость, если картинки маленькие */
   }
 
-  /* 1. НЕБО (движется очень медленно) */
+  /* Подключаем твои ссылки */
   .sky {
     background-image: url('https://img.genially.com/64233afb55129a0017751c8e/45660d88-9615-4cf2-96ad-9c4b78c5e863.png');
-    animation: move-parallax var(--base-speed) linear infinite;
-    animation-duration: calc(var(--base-speed) * 10); 
+    animation: slide var(--speed-sky) linear infinite;
     z-index: 1;
   }
 
-  /* 2. ГОРОД (средняя скорость) */
   .city {
     background-image: url('https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png');
-    animation: move-parallax var(--base-speed) linear infinite;
-    animation-duration: calc(var(--base-speed) * 3);
+    animation: slide var(--speed-city) linear infinite;
     z-index: 2;
   }
 
-  /* 3. ПЕРИЛА / ДОРОГА (самый быстрый слой) */
   .foreground {
     background-image: url('https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png');
-    animation: move-parallax var(--base-speed) linear infinite;
+    animation: slide var(--speed-rail) linear infinite;
     z-index: 3;
   }
 
-  /* Общая анимация смещения фона */
-  @keyframes move-parallax {
-    from { background-position: 0 0; }
-    to { background-position: -2000px 0; } /* Число должно быть кратно ширине картинки для бесшовности */
+  /* Умная анимация: двигаем блок ровно на половину (на одну ширину экрана) */
+  @keyframes slide {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Декоративная линия дороги снизу */
+  .viewport::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 4px;
+    background: #ff00cc;
+    box-shadow: 0 0 15px #ff00cc;
+    z-index: 10;
   }
 </style>
 </head>
