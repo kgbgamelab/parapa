@@ -27,22 +27,23 @@
     overflow: hidden;
   }
 
-  /* Траки — теперь это просто блоки с текстом в одну строку */
+  /* Траки — теперь через nowrap, чтобы картинки не прыгали */
   .parallax-track {
     position: absolute;
     top: 0; left: 0;
     height: 100%;
-    white-space: nowrap; /* Картинки не переносятся, а встают в ряд */
-    font-size: 0; /* Убирает лишние пробелы между картинками */
+    white-space: nowrap; /* Вагоны поезда в один ряд */
+    font-size: 0; /* Убирает лишние зазоры между картинками */
     will-change: transform;
   }
 
   /* Сами картинки */
   .layer-img {
-    display: inline-block; /* Ставим в ряд */
+    display: inline-block;
     height: 100%;
     width: auto;
-    margin-right: -2px; /* Нахлест против черной полосы */
+    /* Нахлест 2px, чтобы не было "черной смерти" на стыке */
+    margin-right: -2px; 
     position: relative;
     z-index: 2;
   }
@@ -54,46 +55,41 @@
 
   @keyframes slide {
     from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    to { transform: translateX(-50%); } /* Идеальный цикл для двух копий */
   }
 
-  /* --- ДЕКОРАЦИИ (Звезды и Свечение) --- */
-  .stars-layer, .glow-layer {
+  /* --- ЭФФЕКТ: СВЕЧЕНИЕ (За городом) --- */
+  .glow-wrap {
     position: absolute;
-    top: 0; left: 0;
-    width: 200%; /* Растягиваем на обе картинки в треке */
-    height: 100%;
-    pointer-events: none;
+    top: 0; left: 0; width: 100%; height: 100%;
     z-index: 1;
+    background: radial-gradient(circle at 50% 60%, rgba(138, 43, 226, 0.4), transparent 70%);
+    background-size: 50% 100%; /* Дублируем свечение на обе половины */
+    animation: glow-pulse 4s ease-in-out infinite alternate;
   }
 
-  /* Звезды привязаны к небу */
-  .stars-layer {
+  @keyframes glow-pulse {
+    from { opacity: 0.3; filter: blur(10px); }
+    to { opacity: 0.7; filter: blur(20px); }
+  }
+
+  /* --- ЭФФЕКТ: ЗВЕЗДЫ (Движутся с небом) --- */
+  .stars-wrap {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
     background-image: 
-      radial-gradient(1.5px 1.5px at 15% 25%, #fff, transparent),
-      radial-gradient(2px 2px at 40% 45%, #fff, transparent),
-      radial-gradient(1px 1px at 65% 15%, #fff, transparent),
-      radial-gradient(2px 2px at 85% 55%, #fff, transparent);
-    background-size: 50% 100%; /* Паттерн повторяется для каждой картинки */
-    animation: twinkle 3s ease-in-out infinite alternate;
-  }
-
-  /* Свечение привязано к городу */
-  .glow-layer {
-    background: radial-gradient(ellipse at 50% 65%, rgba(147, 0, 255, 0.4), transparent 75%);
+      radial-gradient(1.5px 1.5px at 10% 20%, #fff, transparent),
+      radial-gradient(2px 2px at 30% 40%, #fff, transparent),
+      radial-gradient(1px 1px at 60% 15%, #fff, transparent),
+      radial-gradient(2px 2px at 85% 50%, #fff, transparent);
     background-size: 50% 100%;
-    filter: blur(20px);
-    animation: pulse-glow 4s ease-in-out infinite alternate;
+    animation: twinkle-move 3s ease-in-out infinite alternate;
   }
 
-  @keyframes twinkle {
+  @keyframes twinkle-move {
     from { opacity: 0.2; }
     to { opacity: 1; }
-  }
-
-  @keyframes pulse-glow {
-    from { opacity: 0.3; transform: scaleY(0.9); }
-    to { opacity: 0.7; transform: scaleY(1.1); }
   }
 </style>
 </head>
@@ -102,13 +98,13 @@
 <div class="viewport">
 
   <div class="parallax-track sky-track">
-    <div class="stars-layer"></div>
+    <div class="stars-wrap"></div>
     <img src="https://img.genially.com/64233afb55129a0017751c8e/3ac6ae01-55eb-4f6e-b906-bb0b4f0611d9.png" class="layer-img">
     <img src="https://img.genially.com/64233afb55129a0017751c8e/3ac6ae01-55eb-4f6e-b906-bb0b4f0611d9.png" class="layer-img">
   </div>
 
   <div class="parallax-track city-track">
-    <div class="glow-layer"></div>
+    <div class="glow-wrap"></div>
     <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img">
     <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img">
   </div>
