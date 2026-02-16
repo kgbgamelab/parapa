@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   :root{
-    --speed-sky: 100s;
     --speed-city: 40s;
     --speed-rail: 15s;
+
+    --speed-stars-drift: 80s;  /* скорость “плывущих” звёзд */
+    --speed-stars-twinkle: 3s; /* мерцание */
   }
 
   html, body{
@@ -26,61 +28,80 @@
     max-width:177.78vh;
     background:#050011;
     overflow:hidden;
-
-    /* Важно против микрошвов/подпикселей */
     transform: translateZ(0);
   }
 
-  /* ====== НЕБО БЕЗ ШВА: repeat-x вместо двух img ====== */
+  /* ===== СТАТИЧНОЕ НЕБО (без шва) ===== */
   .sky{
     position:absolute;
     inset:0;
     z-index:1;
-
     background-image:url("https://img.genially.com/64233afb55129a0017751c8e/3ac6ae01-55eb-4f6e-b906-bb0b4f0611d9.png");
-    background-repeat: repeat-x;
-    background-position: 0 0;
-    background-size: auto 100%;
-
-    will-change: background-position;
-    transform: translateZ(0);
-    animation: skyMove var(--speed-sky) linear infinite;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:cover;
   }
 
-  @keyframes skyMove{
-    from { background-position: 0 0; }
-    to   { background-position: -100% 0; }
-  }
-
-  /* Мерцающие звезды */
+  /* ===== ДВИЖУЩИЕСЯ ЗВЁЗДЫ (2 слоя для глубины) ===== */
   .stars{
     position:absolute;
-    top:0; left:0; width:100%; height:100%;
-    background-image:
-      radial-gradient(1.5px 1.5px at 20px 30px, #fff, transparent),
-      radial-gradient(2px 2px at 150px 90px, #fff, transparent),
-      radial-gradient(1px 1px at 300px 20px, #fff, transparent);
-    background-size: 500px 500px;
+    inset:-20%;                 /* запас, чтобы при движении не оголялись края */
     z-index:2;
-    animation: twinkle 3s infinite alternate;
     pointer-events:none;
+    transform: translateZ(0);
+    background-repeat: repeat;
+    animation:
+      starsDrift var(--speed-stars-drift) linear infinite,
+      twinkle var(--speed-stars-twinkle) ease-in-out infinite alternate;
+    opacity:.85;
   }
-  @keyframes twinkle{ from{opacity:.2;} to{opacity:.8;} }
 
-  /* ====== Слои с картинками (город/рельсы) ====== */
+  .stars.back{
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.9), transparent),
+      radial-gradient(1px 1px at 140px 110px, rgba(255,255,255,.7), transparent),
+      radial-gradient(1px 1px at 260px 60px, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 380px 160px, rgba(255,255,255,.8), transparent);
+    background-size: 420px 260px;
+    filter: blur(.2px);
+    opacity:.55;
+    animation-duration: 120s, 4s; /* медленнее и мягче */
+  }
+
+  .stars.front{
+    background-image:
+      radial-gradient(1.5px 1.5px at 30px 60px, rgba(255,255,255,1), transparent),
+      radial-gradient(2px 2px at 200px 140px, rgba(255,255,255,.9), transparent),
+      radial-gradient(1.2px 1.2px at 320px 40px, rgba(255,255,255,.8), transparent),
+      radial-gradient(1.6px 1.6px at 420px 200px, rgba(255,255,255,.95), transparent);
+    background-size: 520px 320px;
+    opacity:.75;
+    animation-duration: 80s, 3s;
+  }
+
+  @keyframes starsDrift{
+    from { transform: translate3d(0,0,0); }
+    to   { transform: translate3d(-10%, 4%, 0); } /* диагональный “дрейф” */
+  }
+  @keyframes twinkle{
+    from { opacity: .25; }
+    to   { opacity: .9; }
+  }
+
+  /* ===== Слои с картинками (город/рельсы) ===== */
   .parallax-track{
     display:flex;
     position:absolute;
     top:0; left:0;
     height:100%;
-    width:200%;                 /* важно: ровно 200% */
+    width:200%;
     will-change: transform;
-    transform: translateZ(0);   /* против микрошвов */
+    transform: translateZ(0);
     backface-visibility: hidden;
   }
 
   .layer-img{
-    flex: 0 0 50%;              /* каждая картинка = ровно половина трека */
+    flex: 0 0 50%;
     width:50%;
     height:100%;
     object-fit: cover;
@@ -88,7 +109,6 @@
     transform: translateZ(0);
   }
 
-  /* Анимации */
   .city-track{ animation: slide var(--speed-city) linear infinite; z-index:3; }
   .rail-track{ animation: slide var(--speed-rail) linear infinite; z-index:4; }
 
@@ -101,19 +121,19 @@
 <body>
 
 <div class="viewport">
-  <!-- Небо без шва -->
   <div class="sky"></div>
 
-  <!-- Звёзды -->
-  <div class="stars"></div>
+  <!-- движущиеся звёзды -->
+  <div class="stars back"></div>
+  <div class="stars front"></div>
 
-  <!-- Город -->
+  <!-- город -->
   <div class="parallax-track city-track">
     <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img" alt="">
     <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img" alt="">
   </div>
 
-  <!-- Рельсы -->
+  <!-- рельсы -->
   <div class="parallax-track rail-track">
     <img src="https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png" class="layer-img" alt="">
     <img src="https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png" class="layer-img" alt="">
