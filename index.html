@@ -1,98 +1,123 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  :root {
+  :root{
     --speed-sky: 100s;
     --speed-city: 40s;
     --speed-rail: 15s;
   }
 
-  html, body {
-    margin: 0; padding: 0; width: 100%; height: 100%;
-    background: #000;
-    display: flex; justify-content: center; align-items: center;
-    overflow: hidden;
+  html, body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:#000;
+    display:flex; justify-content:center; align-items:center;
+    overflow:hidden;
   }
 
   /* Контейнер 16:9 */
-  .viewport {
-    position: relative;
-    width: 100vw;
-    height: 56.25vw; 
-    max-height: 100vh;
-    max-width: 177.78vh;
-    background: #050011;
-    overflow: hidden;
+  .viewport{
+    position:relative;
+    width:100vw;
+    height:56.25vw;
+    max-height:100vh;
+    max-width:177.78vh;
+    background:#050011;
+    overflow:hidden;
+
+    /* Важно против микрошвов/подпикселей */
+    transform: translateZ(0);
   }
 
-  /* Обертка для бесконечного движения */
-  .parallax-track {
-    display: flex;
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-    will-change: transform;
+  /* ====== НЕБО БЕЗ ШВА: repeat-x вместо двух img ====== */
+  .sky{
+    position:absolute;
+    inset:0;
+    z-index:1;
+
+    background-image:url("https://img.genially.com/64233afb55129a0017751c8e/3ac6ae01-55eb-4f6e-b906-bb0b4f0611d9.png");
+    background-repeat: repeat-x;
+    background-position: 0 0;
+    background-size: auto 100%;
+
+    will-change: background-position;
+    transform: translateZ(0);
+    animation: skyMove var(--speed-sky) linear infinite;
   }
 
-  /* Сами слои */
-  .layer-img {
-    height: 100%;
-    width: auto;
-    display: block;
-    /* --- ВОТ ЭТО ИСПРАВЛЕНИЕ --- */
-    margin-right: -1px; /* Склеиваем картинки внахлест, чтобы убрать полосу */
-    outline: 1px solid transparent; /* Убирает "призрачные" линии в некоторых браузерах */
-    /* --------------------------- */
-  }
-
-  /* Анимации */
-  .sky-track { animation: slide var(--speed-sky) linear infinite; z-index: 1; }
-  .city-track { animation: slide var(--speed-city) linear infinite; z-index: 2; }
-  .rail-track { animation: slide var(--speed-rail) linear infinite; z-index: 3; }
-
-  @keyframes slide {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); } 
+  @keyframes skyMove{
+    from { background-position: 0 0; }
+    to   { background-position: -100% 0; }
   }
 
   /* Мерцающие звезды */
-  .stars {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: 
+  .stars{
+    position:absolute;
+    top:0; left:0; width:100%; height:100%;
+    background-image:
       radial-gradient(1.5px 1.5px at 20px 30px, #fff, transparent),
       radial-gradient(2px 2px at 150px 90px, #fff, transparent),
       radial-gradient(1px 1px at 300px 20px, #fff, transparent);
     background-size: 500px 500px;
-    z-index: 1;
+    z-index:2;
     animation: twinkle 3s infinite alternate;
+    pointer-events:none;
+  }
+  @keyframes twinkle{ from{opacity:.2;} to{opacity:.8;} }
+
+  /* ====== Слои с картинками (город/рельсы) ====== */
+  .parallax-track{
+    display:flex;
+    position:absolute;
+    top:0; left:0;
+    height:100%;
+    width:200%;                 /* важно: ровно 200% */
+    will-change: transform;
+    transform: translateZ(0);   /* против микрошвов */
+    backface-visibility: hidden;
   }
 
-  @keyframes twinkle { from { opacity: 0.2; } to { opacity: 0.8; } }
+  .layer-img{
+    flex: 0 0 50%;              /* каждая картинка = ровно половина трека */
+    width:50%;
+    height:100%;
+    object-fit: cover;
+    display:block;
+    transform: translateZ(0);
+  }
+
+  /* Анимации */
+  .city-track{ animation: slide var(--speed-city) linear infinite; z-index:3; }
+  .rail-track{ animation: slide var(--speed-rail) linear infinite; z-index:4; }
+
+  @keyframes slide{
+    from { transform: translate3d(0,0,0); }
+    to   { transform: translate3d(-50%,0,0); }
+  }
 </style>
 </head>
 <body>
 
 <div class="viewport">
+  <!-- Небо без шва -->
+  <div class="sky"></div>
+
+  <!-- Звёзды -->
   <div class="stars"></div>
 
-  <div class="parallax-track sky-track">
-    <img src="https://img.genially.com/64233afb55129a0017751c8e/3ac6ae01-55eb-4f6e-b906-bb0b4f0611d9.png" class="layer-img">
-    <img src="https://img.genially.com/64233afb55129a0017751c8e/3ac6ae01-55eb-4f6e-b906-bb0b4f0611d9.png" class="layer-img">
-  </div>
-
+  <!-- Город -->
   <div class="parallax-track city-track">
-    <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img">
-    <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img">
+    <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img" alt="">
+    <img src="https://img.genially.com/64233afb55129a0017751c8e/7ec97bc3-bbfd-4748-a736-c61e5e1a4740.png" class="layer-img" alt="">
   </div>
 
+  <!-- Рельсы -->
   <div class="parallax-track rail-track">
-    <img src="https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png" class="layer-img">
-    <img src="https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png" class="layer-img">
+    <img src="https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png" class="layer-img" alt="">
+    <img src="https://img.genially.com/64233afb55129a0017751c8e/9cd90814-26ee-4d3d-b770-2e0da6587266.png" class="layer-img" alt="">
   </div>
-
 </div>
 
 </body>
