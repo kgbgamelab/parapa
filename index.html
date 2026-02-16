@@ -29,7 +29,7 @@
 
   /* Обертка для бесконечного движения */
   .parallax-track {
-    display: flex; /* Выстраиваем две копии в ряд */
+    display: flex;
     position: absolute;
     top: 0; left: 0;
     height: 100%;
@@ -39,8 +39,12 @@
   /* Сами слои */
   .layer-img {
     height: 100%;
-    width: auto; /* Сохраняем пропорции */
+    width: auto;
     display: block;
+    /* --- ВОТ ЭТО ИСПРАВЛЕНИЕ --- */
+    margin-right: -1px; /* Склеиваем картинки внахлест, чтобы убрать полосу */
+    outline: 1px solid transparent; /* Убирает "призрачные" линии в некоторых браузерах */
+    /* --------------------------- */
   }
 
   /* Анимации */
@@ -50,7 +54,7 @@
 
   @keyframes slide {
     from { transform: translateX(0); }
-    to { transform: translateX(-50%); } /* Двигаем ровно на одну ширину набора */
+    to { transform: translateX(-50%); } 
   }
 
   /* Мерцающие звезды */
